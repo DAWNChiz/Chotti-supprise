@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For My Chotti</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Nunito:wght@300;400;600&family=Dancing+Script:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --rose:#e8a0b0;
+  --rose-deep:#c4647e;
+  --rose-light:#f7dde5;
+  --rose-pale:#fdf0f4;
+  --blush:#f5c6d4;
+  --gold:#d4a574;
+  --text-dark:#4a2030;
+  --text-mid:#7a4560;
+  --text-soft:#b08090;
+  --white:#fffbfd;
+  --cream:#fef9f5;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--text-dark);overflow-x:hidden;}
+
+/* STICKER PARTICLES */
+#sticker-layer{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.sticker{
+  position:absolute;
+  font-size:18px;
+  opacity:0;
+  will-change:transform,opacity;
+  animation:stickerFloat linear infinite both;
+  user-select:none;
+}
+@keyframes stickerFloat{
+  0%  {opacity:0;transform:translateY(0) rotate(var(--r0)) scale(0.7);}
+  8%  {opacity:0.85;}
+  90% {opacity:0.6;}
+  100%{opacity:0;transform:translateY(-105vh) rotate(var(--r1)) scale(1);}
+}
+
+/* PIN SCREEN */
+#pin-screen{
+  position:fixed;inset:0;z-index:1000;
+  background:linear-gradient(145deg,#f9e8ef 0%,#fce8f3 40%,#f0d5e8 100%);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  transition:opacity 0.9s ease,transform 0.9s ease;
+}
+#pin-screen.unlocking{opacity:0;transform:scale(1.06);pointer-events:none;}
+
+.lock-wrap{text-align:center;animation:floatIn 1s ease both;}
+@keyframes floatIn{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+
+.lock-svg-wrap{
+  width:72px;height:72px;margin:0 auto 20px;
+  animation:gentlePulse 2.8s ease-in-out infinite;
+}
+@keyframes gentlePulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+
+.lock-title{font-family:'Dancing Script',cursive;font-size:28px;color:var(--rose-deep);margin-bottom:6px;}
+.lock-sub{font-size:13px;color:var(--text-soft);margin-bottom:32px;letter-spacing:0.05em;}
+
+.pin-dots{display:flex;gap:14px;justify-content:center;margin-bottom:28px;}
+.pin-dot{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid var(--rose-deep);background:transparent;
+  transition:background 0.2s,transform 0.2s;
+}
+.pin-dot.filled{background:var(--rose-deep);transform:scale(1.2);}
+.pin-dot.error{background:#e07070;border-color:#e07070;animation:shake 0.4s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-5px);}40%{transform:translateX(5px);}60%{transform:translateX(-5px);}80%{transform:translateX(5px);}}
+
+.keypad{display:grid;grid-template-columns:repeat(3,68px);gap:12px;}
+.key{
+  width:68px;height:68px;border-radius:50%;
+  background:rgba(255,255,255,0.7);border:1.5px solid var(--blush);
+  font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;
+  color:var(--text-dark);cursor:pointer;transition:all 0.15s;
+  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);
+}
+.key:hover{background:var(--blush);transform:scale(1.07);border-color:var(--rose-deep);}
+.key:active{transform:scale(0.95);}
+.key.del{font-size:18px;color:var(--text-soft);}
+.key.empty{visibility:hidden;}
+
+/* MAIN SITE */
+#main-site{display:none;position:relative;z-index:1;}
+
+/* HERO */
+.hero{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;text-align:center;padding:60px 24px;
+  background:linear-gradient(180deg,#fdf0f4 0%,#fef9f5 100%);position:relative;
+}
+.hero-badge{
+  font-size:11px;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--rose-deep);opacity:0;animation:fadeUp 0.8s 0.3s ease both;
+  margin-bottom:18px;border:1px solid var(--blush);padding:6px 18px;
+  border-radius:20px;background:rgba(255,255,255,0.6);
+}
+.hero-name{
+  font-family:'Dancing Script',cursive;font-size:clamp(52px,10vw,90px);
+  color:var(--rose-deep);line-height:1;opacity:0;
+  animation:fadeUp 0.9s 0.5s ease both;margin-bottom:10px;
+}
+.hero-sub{
+  font-family:'Cormorant Garamond',serif;font-size:clamp(16px,3vw,22px);
+  font-style:italic;color:var(--text-mid);opacity:0;
+  animation:fadeUp 0.9s 0.75s ease both;max-width:480px;line-height:1.6;margin-bottom:48px;
+}
+.scroll-hint{
+  opacity:0;animation:fadeUp 0.8s 1.2s ease both,bob 2.2s 2s ease-in-out infinite;
+  color:var(--text-soft);font-size:13px;letter-spacing:0.1em;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.scroll-arrow{
+  width:20px;height:20px;border-right:2px solid var(--rose-deep);
+  border-bottom:2px solid var(--rose-deep);transform:rotate(45deg);margin-top:4px;
+}
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+/* SECTION COMMON */
+.section-label{
+  font-size:11px;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--rose-deep);display:block;text-align:center;margin-bottom:10px;
+}
+.section-title{
+  font-family:'Dancing Script',cursive;font-size:clamp(32px,6vw,52px);
+  color:var(--text-dark);text-align:center;margin-bottom:48px;
+}
+
+/* ALBUM SECTION */
+.album-section{background:var(--white);padding:80px 24px 100px;}
+.album-stage{
+  position:relative;max-width:900px;margin:0 auto;
+  height:620px;
+}
+
+/* Each polaroid floats */
+.polaroid{
+  position:absolute;
+  background:#fff;
+  box-shadow:0 8px 32px rgba(100,40,60,0.18),0 2px 8px rgba(100,40,60,0.10);
+  transition:transform 0.4s cubic-bezier(.22,.68,0,1.4),box-shadow 0.3s ease,z-index 0s;
+  cursor:pointer;
+}
+.polaroid:hover{
+  box-shadow:0 20px 60px rgba(100,40,60,0.28),0 4px 16px rgba(100,40,60,0.14);
+  z-index:10 !important;
+}
+.polaroid-inner{
+  padding:10px 10px 0 10px;
+  position:relative;overflow:hidden;
+}
+.polaroid-img{
+  width:100%;display:block;
+  background:linear-gradient(135deg,#f7dde5 0%,#edd5e5 50%,#f0ddf0 100%);
+}
+/* fancy overlay on each photo */
+.polaroid-inner::after{
+  content:'';position:absolute;inset:10px 10px 0 10px;
+  background:linear-gradient(160deg,rgba(255,255,255,0.18) 0%,transparent 50%,rgba(196,100,126,0.08) 100%);
+  pointer-events:none;
+}
+/* gold corner decorations */
+.polaroid-inner::before{
+  content:'';position:absolute;top:10px;left:10px;right:10px;bottom:0;
+  border:1px solid rgba(212,165,116,0.35);pointer-events:none;z-index:2;
+}
+.polaroid-caption{
+  font-family:'Dancing Script',cursive;
+  font-size:15px;color:var(--text-mid);
+  text-align:center;padding:10px 6px 14px;
+  letter-spacing:0.02em;
+}
+
+/* Placeholder photo contents */
+.photo-placeholder-inner{
+  width:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;
+}
+.photo-placeholder-inner svg{opacity:0.35;}
+.photo-placeholder-inner p{font-size:11px;color:var(--text-soft);letter-spacing:0.05em;}
+
+/* Individual polaroid positions and rotations */
+.p1{width:220px;top:30px;left:20px;transform:rotate(-4deg);z-index:3;}
+.p1:hover{transform:rotate(-1deg) scale(1.04);}
+.p2{width:200px;top:10px;left:240px;transform:rotate(2.5deg);z-index:2;}
+.p2:hover{transform:rotate(0.5deg) scale(1.05);}
+.p3{width:240px;top:20px;left:430px;transform:rotate(-2deg);z-index:4;}
+.p3:hover{transform:rotate(0deg) scale(1.04);}
+.p4{width:210px;top:300px;left:60px;transform:rotate(3deg);z-index:5;}
+.p4:hover{transform:rotate(1deg) scale(1.05);}
+.p5{width:230px;top:310px;left:300px;transform:rotate(-3.5deg);z-index:3;}
+.p5:hover{transform:rotate(-1deg) scale(1.04);}
+.p6{width:200px;top:320px;left:550px;transform:rotate(1.5deg);z-index:2;}
+.p6:hover{transform:rotate(0deg) scale(1.05);}
+
+/* photo img actual */
+.polaroid img{width:100%;display:block;object-fit:cover;}
+
+/* LETTER SECTION */
+.letter-section{
+  background:linear-gradient(160deg,#fdf0f4,#fef9f5 60%,#f5eef8);
+  padding:80px 24px;
+}
+.letter-wrap{max-width:680px;margin:0 auto;}
+
+/* Sealed envelope - tap to open */
+.envelope-wrap{
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:48px;
+}
+.envelope{
+  position:relative;width:200px;height:140px;cursor:pointer;
+  transition:transform 0.3s ease;
+}
+.envelope:hover{transform:scale(1.04);}
+.env-hint{
+  text-align:center;margin-top:14px;
+  font-family:'Dancing Script',cursive;font-size:16px;color:var(--text-soft);
+  animation:gentleBob 2s ease-in-out infinite;
+}
+@keyframes gentleBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+
+.letter-revealed{display:none;}
+.letter-paper{
+  background:var(--white);border-radius:2px;padding:52px 56px;
+  box-shadow:0 8px 40px rgba(180,80,110,0.10),6px 6px 0 var(--rose-light);
+  position:relative;border-top:4px solid var(--rose-deep);
+  animation:paperOpen 0.6s ease both;
+}
+@keyframes paperOpen{from{opacity:0;transform:translateY(20px) scale(0.97);}to{opacity:1;transform:none;}}
+.letter-paper::before{
+  content:'';position:absolute;top:84px;left:52px;right:52px;
+  height:1px;background:var(--blush);
+}
+.letter-date{font-family:'Dancing Script',cursive;font-size:15px;color:var(--text-soft);text-align:right;margin-bottom:28px;}
+.letter-salutation{font-family:'Dancing Script',cursive;font-size:26px;color:var(--rose-deep);margin-bottom:24px;}
+.letter-body{
+  font-family:'Cormorant Garamond',serif;font-size:18px;
+  line-height:1.9;color:var(--text-dark);white-space:pre-wrap;min-height:200px;
+}
+.cursor-blink{
+  display:inline-block;width:2px;height:20px;background:var(--rose-deep);
+  vertical-align:middle;margin-left:2px;animation:blink 0.9s step-end infinite;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.letter-sign{
+  font-family:'Dancing Script',cursive;font-size:28px;color:var(--rose-deep);
+  margin-top:32px;text-align:right;opacity:0;transition:opacity 0.8s;
+}
+.letter-sign.visible{opacity:1;}
+
+/* PROMISES */
+.promises-section{background:var(--white);padding:80px 24px;}
+.promises-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:24px;max-width:880px;margin:0 auto;
+}
+.promise-card{
+  background:linear-gradient(145deg,#fdf0f4,#fff);
+  border:1px solid var(--blush);border-radius:16px;padding:32px 24px;
+  text-align:center;transition:transform 0.3s,box-shadow 0.3s;
+}
+.promise-card:hover{transform:translateY(-6px);box-shadow:0 12px 32px rgba(180,80,110,0.13);}
+.promise-icon-wrap{
+  width:52px;height:52px;border-radius:50%;
+  background:var(--rose-light);margin:0 auto 14px;
+  display:flex;align-items:center;justify-content:center;
+}
+.promise-title{font-family:'Dancing Script',cursive;font-size:20px;color:var(--rose-deep);margin-bottom:8px;}
+.promise-text{font-size:13px;color:var(--text-mid);line-height:1.7;}
+
+/* COUNTDOWN */
+.countdown-section{
+  background:linear-gradient(145deg,#4a2030,#7a3050);
+  padding:80px 24px;text-align:center;color:white;
+}
+.countdown-title{font-family:'Dancing Script',cursive;font-size:38px;margin-bottom:8px;color:var(--blush);}
+.countdown-sub{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:40px;letter-spacing:0.1em;}
+.countdown-boxes{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;}
+.cd-box{
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+  border-radius:12px;padding:20px 28px;min-width:90px;
+}
+.cd-num{
+  font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;
+  color:var(--blush);line-height:1;display:block;
+}
+.cd-label{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:0.12em;text-transform:uppercase;margin-top:6px;}
+
+/* MUSIC PLAYER */
+#music-bar{
+  position:fixed;bottom:24px;right:24px;z-index:500;
+  background:rgba(255,255,255,0.88);backdrop-filter:blur(12px);
+  border:1px solid var(--blush);border-radius:50px;
+  padding:10px 20px;display:none;align-items:center;gap:12px;
+  box-shadow:0 4px 24px rgba(180,80,110,0.15);font-size:13px;color:var(--text-mid);
+  cursor:pointer;transition:transform 0.2s;
+}
+#music-bar:hover{transform:scale(1.03);}
+.music-disc{
+  width:22px;height:22px;border-radius:50%;
+  border:2px solid var(--rose-deep);
+  border-top-color:var(--blush);
+  animation:discSpin 1.8s linear infinite;
+}
+@keyframes discSpin{to{transform:rotate(360deg);}}
+#music-bar.paused .music-disc{animation-play-state:paused;}
+
+/* FOOTER */
+.footer{
+  background:var(--rose-pale);padding:60px 24px;
+  text-align:center;border-top:1px solid var(--blush);
+}
+.footer-heart{display:flex;justify-content:center;margin-bottom:16px;}
+.footer-text{font-family:'Dancing Script',cursive;font-size:22px;color:var(--rose-deep);}
+.footer-tiny{font-size:12px;color:var(--text-soft);margin-top:8px;letter-spacing:0.06em;}
+
+/* RESPONSIVE */
+@media(max-width:700px){
+  .album-stage{height:auto;display:flex;flex-direction:column;align-items:center;gap:28px;}
+  .polaroid{position:static !important;transform:none !important;width:80% !important;}
+  .polaroid:hover{transform:scale(1.03) !important;}
+  .letter-paper{padding:32px 24px;}
+  .letter-paper::before{left:24px;right:24px;}
+}
+</style>
+</head>
+<body>
+
+<!-- SVG petal canvas -->
+<div id="sticker-layer"></div>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen">
+  <div class="lock-wrap">
+    <div class="lock-svg-wrap">
+      <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="14" y="32" width="44" height="32" rx="6" fill="#f5c6d4" stroke="#c4647e" stroke-width="2"/>
+        <path d="M24 32V24a12 12 0 0 1 24 0v8" stroke="#c4647e" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="36" cy="48" r="5" fill="#c4647e"/>
+        <rect x="34" y="48" width="4" height="7" rx="2" fill="#c4647e"/>
+      </svg>
+    </div>
+    <div class="lock-title">This place is just for you</div>
+    <div class="lock-sub">Enter your secret pin to open</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="keypad" id="keypad">
+      <button class="key" data-val="1">1</button>
+      <button class="key" data-val="2">2</button>
+      <button class="key" data-val="3">3</button>
+      <button class="key" data-val="4">4</button>
+      <button class="key" data-val="5">5</button>
+      <button class="key" data-val="6">6</button>
+      <button class="key" data-val="7">7</button>
+      <button class="key" data-val="8">8</button>
+      <button class="key" data-val="9">9</button>
+      <button class="key empty"></button>
+      <button class="key" data-val="0">0</button>
+      <button class="key del" data-val="del">&#9003;</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN SITE -->
+<div id="main-site">
+
+  <!-- Music bar -->
+  <div id="music-bar" onclick="toggleMusic()">
+    <div class="music-disc" id="music-disc"></div>
+    <span id="music-label">Tujhe Kitna Chahne Lage</span>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">A special place, made just for you</div>
+    <h1 class="hero-name">My Chotti</h1>
+    <p class="hero-sub">You are the softest, most beautiful thing that has ever walked into my life. This is for you.</p>
+    <div class="scroll-hint">
+      Scroll to explore
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- ALBUM -->
+  <section class="album-section">
+    <div style="max-width:900px;margin:0 auto 48px;text-align:center;">
+      <span class="section-label">She is everything</span>
+      <h2 class="section-title">Look How Beautiful She Is</h2>
+    </div>
+
+    <div class="album-stage">
+
+      <!-- Polaroid 1 -->
+      <div class="polaroid p1">
+        <div class="polaroid-inner">
+          <!-- Replace with: <img src="photos/photo1.jpg" alt="Us" style="height:200px;"> -->
+          <div class="photo-placeholder-inner" style="height:200px;">
+            <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="14" r="7" fill="#c4647e"/><path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" fill="#e8a0b0"/></svg>
+            <p>Photo 1</p>
+          </div>
+        </div>
+        <div class="polaroid-caption">That smile, I swear</div>
+      </div>
+
+      <!-- Polaroid 2 -->
+      <div class="polaroid p2">
+        <div class="polaroid-inner">
+          <div class="photo-placeholder-inner" style="height:180px;">
+            <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="14" r="7" fill="#c4647e"/><path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" fill="#e8a0b0"/></svg>
+            <p>Photo 2</p>
+          </div>
+        </div>
+        <div class="polaroid-caption">Absolutely stunning</div>
+      </div>
+
+      <!-- Polaroid 3 -->
+      <div class="polaroid p3">
+        <div class="polaroid-inner">
+          <div class="photo-placeholder-inner" style="height:210px;">
+            <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="14" r="7" fill="#c4647e"/><path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" fill="#e8a0b0"/></svg>
+            <p>Photo 3</p>
+          </div>
+        </div>
+        <div class="polaroid-caption">She does not even know</div>
+      </div>
+
+      <!-- Polaroid 4 -->
+      <div class="polaroid p4">
+        <div class="polaroid-inner">
+          <div class="photo-placeholder-inner" style="height:195px;">
+            <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="14" r="7" fill="#c4647e"/><path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" fill="#e8a0b0"/></svg>
+            <p>Photo 4</p>
+          </div>
+        </div>
+        <div class="polaroid-caption">My favourite person</div>
+      </div>
+
+      <!-- Polaroid 5 -->
+      <div class="polaroid p5">
+        <div class="polaroid-inner">
+          <div class="photo-placeholder-inner" style="height:205px;">
+            <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="14" r="7" fill="#c4647e"/><path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" fill="#e8a0b0"/></svg>
+            <p>Photo 5</p>
+          </div>
+        </div>
+        <div class="polaroid-caption">I could look at her forever</div>
+      </div>
+
+      <!-- Polaroid 6 -->
+      <div class="polaroid p6">
+        <div class="polaroid-inner">
+          <div class="photo-placeholder-inner" style="height:185px;">
+            <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="14" r="7" fill="#c4647e"/><path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" fill="#e8a0b0"/></svg>
+            <p>Photo 6</p>
+          </div>
+        </div>
+        <div class="polaroid-caption">Pure magic</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- LETTER -->
+  <section class="letter-section">
+    <div class="letter-wrap">
+      <div style="text-align:center;margin-bottom:40px;">
+        <span class="section-label">A letter from my heart</span>
+        <h2 class="section-title">For You, Always</h2>
+      </div>
+
+      <!-- Sealed envelope -->
+      <div class="envelope-wrap" id="envelope-wrap">
+        <div>
+          <div class="envelope" id="envelope" onclick="openLetter()">
+            <svg viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:200px;height:140px;">
+              <rect width="200" height="140" rx="8" fill="#fdf0f4" stroke="#e8a0b0" stroke-width="1.5"/>
+              <!-- envelope flap -->
+              <path d="M0 8 L100 80 L200 8" stroke="#e8a0b0" stroke-width="1.5" fill="none"/>
+              <!-- left fold -->
+              <path d="M0 8 L0 140 L70 80 Z" fill="#f5c6d4" opacity="0.5"/>
+              <!-- right fold -->
+              <path d="M200 8 L200 140 L130 80 Z" fill="#f5c6d4" opacity="0.5"/>
+              <!-- wax seal -->
+              <circle cx="100" cy="90" r="18" fill="#c4647e"/>
+              <text x="100" y="96" text-anchor="middle" font-family="Dancing Script,cursive" font-size="16" fill="white">C</text>
+            </svg>
+          </div>
+          <div class="env-hint">Tap to open</div>
+        </div>
+      </div>
+
+      <!-- Letter content (hidden until tapped) -->
+      <div class="letter-revealed" id="letter-revealed">
+        <div class="letter-paper">
+          <div class="letter-date" id="letter-date"></div>
+          <div class="letter-salutation">My dearest Chotti,</div>
+          <div class="letter-body" id="letter-body"><span class="cursor-blink" id="cursor"></span></div>
+          <div class="letter-sign" id="letter-sign">Forever yours, Chris</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROMISES -->
+  <section class="promises-section">
+    <span class="section-label">What I promise you</span>
+    <h2 class="section-title">My Vows to You</h2>
+    <div class="promises-grid">
+      <div class="promise-card">
+        <div class="promise-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c4647e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="promise-title">I will protect you</div>
+        <p class="promise-text">Through every storm, every hard day, every moment of doubt. I will be your safe place, always.</p>
+      </div>
+      <div class="promise-card">
+        <div class="promise-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c4647e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <div class="promise-title">I will stay</div>
+        <p class="promise-text">Distance cannot change what I feel. I am yours at 3am, at 3pm, in every timezone, forever.</p>
+      </div>
+      <div class="promise-card">
+        <div class="promise-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c4647e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <div class="promise-title">I will choose you</div>
+        <p class="promise-text">Every single day, without hesitation. You are not a choice I made once. You are a choice I keep making.</p>
+      </div>
+      <div class="promise-card">
+        <div class="promise-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c4647e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div class="promise-title">I will grow with you</div>
+        <p class="promise-text">Your dreams are my dreams. I will celebrate every win, sit with every loss, and be your biggest cheerleader.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COUNTDOWN -->
+  <section class="countdown-section">
+    <div class="countdown-title">Days since we first met</div>
+    <div class="countdown-sub">9th February 2026. Every single day has been a gift.</div>
+    <div class="countdown-boxes">
+      <div class="cd-box"><span class="cd-num" id="cd-days">0</span><div class="cd-label">Days</div></div>
+      <div class="cd-box"><span class="cd-num" id="cd-hours">00</span><div class="cd-label">Hours</div></div>
+      <div class="cd-box"><span class="cd-num" id="cd-mins">00</span><div class="cd-label">Minutes</div></div>
+      <div class="cd-box"><span class="cd-num" id="cd-secs">00</span><div class="cd-label">Seconds</div></div>
+    </div>
+    <p style="margin-top:32px;font-size:13px;color:rgba(255,255,255,0.3);letter-spacing:0.06em;">and counting</p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-heart">
+      <svg width="40" height="36" viewBox="0 0 40 36" fill="#c4647e" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 34S2 22 2 11a9 9 0 0 1 18-1 9 9 0 0 1 18 1c0 11-18 23-18 23z"/>
+      </svg>
+    </div>
+    <div class="footer-text">You are the best thing that ever happened to me.</div>
+    <div class="footer-tiny">Made with every bit of love I have. For my Chotti, always.</div>
+  </footer>
+
+</div>
+
+<!-- HTML5 Audio Player -->
+<audio id="bg-audio" loop preload="auto">
+  <source src="song.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+// ── ANIMATED STICKER PARTICLES ──
+(function(){
+  const stickers = ['🌸','🌷','🌺','🌹','💕','💫','✨','🎀','🍀','🌼'];
+  const layer = document.getElementById('sticker-layer');
+  let count = 0;
+
+  function spawn(){
+    const el = document.createElement('span');
+    el.className = 'sticker';
+    el.textContent = stickers[Math.floor(Math.random() * stickers.length)];
+
+    const size  = 14 + Math.random() * 14;
+    const dur   = 7 + Math.random() * 9;
+    const delay = Math.random() * 4;
+    const left  = Math.random() * 100;
+    const r0    = (Math.random() - 0.5) * 40 + 'deg';
+    const r1    = (Math.random() - 0.5) * 360 + 'deg';
+    const drift = (Math.random() - 0.5) * 80;
+
+    el.style.cssText = `
+      left:${left}vw;
+      bottom:-30px;
+      font-size:${size}px;
+      animation-duration:${dur}s;
+      animation-delay:${delay}s;
+      --r0:${r0};
+      --r1:${r1};
+      transform:translateX(${drift}px);
+    `;
+
+    layer.appendChild(el);
+    setTimeout(() => el.remove(), (dur + delay + 1) * 1000);
+    count++;
+  }
+
+  // Spawn continuously, keep max ~35 alive
+  function loop(){
+    if(layer.children.length < 35) spawn();
+    setTimeout(loop, 400 + Math.random() * 400);
+  }
+  loop();
+})();
+
+// ── PIN ──
+const CORRECT = '1604';
+let entered = '';
+
+function updateDots(){
+  for(let i = 0; i < 4; i++){
+    const d = document.getElementById('d' + i);
+    d.className = 'pin-dot' + (i < entered.length ? ' filled' : '');
+  }
+}
+
+function errorShake(){
+  document.querySelectorAll('.pin-dot').forEach(d => d.className = 'pin-dot error');
+  setTimeout(() => { entered = ''; updateDots(); }, 600);
+}
+
+function checkPin(){
+  if(entered === CORRECT) unlock();
+  else errorShake();
+}
+
+function unlock(){
+  document.getElementById('pin-screen').classList.add('unlocking');
+  setTimeout(() => {
+    document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('main-site').style.display = 'block';
+    document.getElementById('music-bar').style.display = 'flex';
+    startCountdown();
+    attemptMusicStart();
+  }, 900);
+}
+
+document.getElementById('keypad').addEventListener('click', e => {
+  const btn = e.target.closest('.key');
+  if(!btn) return;
+  const val = btn.dataset.val;
+  if(val === 'del'){ entered = entered.slice(0, -1); updateDots(); }
+  else if(entered.length < 4){
+    entered += val; updateDots();
+    if(entered.length === 4) setTimeout(checkPin, 200);
+  }
+});
+
+// ── LETTER DATE ──
+const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const now = new Date();
+document.getElementById('letter-date').textContent = months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+
+// ── ENVELOPE OPEN ──
+function openLetter(){
+  document.getElementById('envelope-wrap').style.display = 'none';
+  const revealed = document.getElementById('letter-revealed');
+  revealed.style.display = 'block';
+  startTypewriter();
+}
+
+// ── TYPEWRITER ──
+const letterText = `I want you to know something, and I need you to really hear it. Not just read it, but feel it deep in your heart.
+
+No matter what happens. No matter what life throws at us, no matter how hard the days get, no matter how far apart we are. I will be here. I will be with you. To the very end.
+
+You are not just someone I love. You are someone I have chosen, and I will keep choosing you every single morning I wake up. When things are easy, and especially when they are not.
+
+I know distance makes things hard. I know there are nights when the silence feels heavy. But please know that in every one of those silences, I am thinking of you. I am holding you in the only way I can right now. With every word, every thought, every prayer.
+
+You are my calm. You are my home. You make me want to be better, love deeper, and live with more purpose than I ever did before you.
+
+So whatever comes. Storms, doubts, hard seasons, distance. None of it changes this. None of it changes us.
+
+I am yours. And I will be, always.`;
+
+let charIndex = 0;
+
+function startTypewriter(){
+  const body = document.getElementById('letter-body');
+  const cursor = document.getElementById('cursor');
+  body.innerHTML = '';
+  body.appendChild(cursor);
+  charIndex = 0;
+
+  function type(){
+    if(charIndex < letterText.length){
+      const char = letterText[charIndex];
+      body.insertBefore(document.createTextNode(char), cursor);
+      charIndex++;
+      const delay = (char === '.' || char === '?' || char === '!') ? 380 :
+                    char === ',' ? 160 : char === '\n' ? 280 : 26;
+      setTimeout(type, delay);
+    } else {
+      cursor.style.display = 'none';
+      document.getElementById('letter-sign').classList.add('visible');
+    }
+  }
+  setTimeout(type, 400);
+}
+
+// ── COUNTDOWN from 9 Feb 2026 ──
+const START_DATE = new Date('2026-02-09T00:00:00');
+
+function startCountdown(){
+  function tick(){
+    const diff = Math.max(0, Date.now() - START_DATE.getTime());
+    const totalSecs = Math.floor(diff / 1000);
+    const secs = totalSecs % 60;
+    const mins = Math.floor(totalSecs / 60) % 60;
+    const hrs  = Math.floor(totalSecs / 3600) % 24;
+    const days = Math.floor(totalSecs / 86400);
+    document.getElementById('cd-days').textContent  = days;
+    document.getElementById('cd-hours').textContent = String(hrs).padStart(2,'0');
+    document.getElementById('cd-mins').textContent  = String(mins).padStart(2,'0');
+    document.getElementById('cd-secs').textContent  = String(secs).padStart(2,'0');
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+// ── MUSIC (HTML5 Audio) ──
+const audio = document.getElementById('bg-audio');
+let musicPlaying = false;
+
+function attemptMusicStart(){
+  audio.volume = 0.8;
+  const promise = audio.play();
+  if(promise !== undefined){
+    promise.then(() => {
+      musicPlaying = true;
+      document.getElementById('music-bar').classList.remove('paused');
+      document.getElementById('music-label').textContent = 'Tujhe Kitna Chahne Lage';
+    }).catch(() => {
+      // Autoplay blocked, user can tap the bar to start
+      document.getElementById('music-label').textContent = 'Tap to play';
+      document.getElementById('music-bar').classList.add('paused');
+    });
+  }
+}
+
+function toggleMusic(){
+  if(musicPlaying){
+    audio.pause();
+    musicPlaying = false;
+    document.getElementById('music-bar').classList.add('paused');
+    document.getElementById('music-label').textContent = 'Tap to play';
+  } else {
+    audio.play();
+    musicPlaying = true;
+    document.getElementById('music-bar').classList.remove('paused');
+    document.getElementById('music-label').textContent = 'Tujhe Kitna Chahne Lage';
+  }
+}
+</script>
+</body>
+</html>
